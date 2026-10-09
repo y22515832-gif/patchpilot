@@ -78,12 +78,16 @@ rules:
                 check=False,
             )
             report = json.loads(result.stdout)
-        except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError):
+        except (OSError, subprocess.TimeoutExpired, json.JSONDecodeError) as exc:
+            print(f"PatchPilot Semgrep error: {type(exc).__name__}: {exc}")
             return [{
                 "id": "SEMGREP-ERROR",
                 "severity": "Medium",
                 "title": "Security scan could not complete",
-                "description": "Semgrep failed or timed out. Review scanner setup before accepting this code.",
+                "description": (
+                    f"Semgrep failed: {type(exc).__name__}: {exc}. "
+                    "Check deployment logs before accepting this code."
+                ),
                 "line": 1,
                 "snippet": code.splitlines()[0][:240] if code.splitlines() else "",
             }]
