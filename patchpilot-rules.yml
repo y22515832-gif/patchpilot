@@ -1,0 +1,30 @@
+rules:
+  - id: python-unsafe-eval
+    languages: [python]
+    severity: ERROR
+    message: Avoid eval() on untrusted input.
+    pattern: eval(...)
+
+  - id: python-unsafe-exec
+    languages: [python]
+    severity: ERROR
+    message: Avoid exec() on untrusted input.
+    pattern: exec(...)
+
+  - id: python-unsafe-pickle
+    languages: [python]
+    severity: ERROR
+    message: Avoid pickle.loads() on untrusted data.
+    pattern: pickle.loads(...)
+
+  - id: python-unsafe-yaml-load
+    languages: [python]
+    severity: WARNING
+    message: Review yaml.load() and use a safe loader for untrusted data.
+    pattern: yaml.load(...)
+
+  - id: python-subprocess-shell
+    languages: [python]
+    severity: WARNING
+    message: Review subprocess calls using shell=True for command injection.
+    pattern: subprocess.run(..., shell=True, ...)

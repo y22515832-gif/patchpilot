@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PatchPilot | Multi-Agent Security Pipeline</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#172238;--line:#263650;--text:#edf3ff;--muted:#9aabc5;--blue:#72a7ff;--green:#5fe0b0;--amber:#ffca78;--red:#ff808b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#18294a 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,Segoe UI,Arial}
+.wrap{max-width:1200px;margin:auto;padding:28px 20px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#5b9cff,#8c7bff);font-size:24px;font-weight:900;color:#081124}
+h1{font-size:24px;margin:0;letter-spacing:-.5px}.sub{color:var(--muted);margin-top:3px}.pill{border:1px solid #31513f;color:var(--green);background:#122c2a;border-radius:999px;padding:7px 12px;font-size:12px}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}.panel{background:linear-gradient(180deg,rgba(23,34,56,.96),rgba(16,25,43,.96));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 16px 45px #0002}
+h2{font-size:17px;margin:0 0 12px}p{color:var(--muted);margin:5px 0 15px}.editor{width:100%;min-height:255px;resize:vertical;background:#080e1b;color:#d9e7ff;border:1px solid #2b3c59;border-radius:12px;padding:14px;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}.editor:focus{border-color:var(--blue)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:#071126}.secondary{background:#25334d;color:var(--text);border:1px solid #3b4d6b}.btn:disabled{opacity:.5;cursor:wait}
+.flow{display:grid;gap:10px}.agent{display:flex;align-items:center;gap:12px;background:#0e1728;border:1px solid #273852;border-radius:12px;padding:12px}.agent-icon{width:40px;height:40px;display:grid;place-items:center;background:#1b2a45;border-radius:11px;font-size:19px}.agent b{display:block;font-size:14px}.agent small{color:var(--muted)}.status{margin-left:auto;font-size:11px;border-radius:999px;padding:4px 8px;background:#243148;color:var(--muted);white-space:nowrap}.status.pass{background:#12382f;color:var(--green)}.status.warn{background:#3b2e1d;color:var(--amber)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.metric{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}.metric span{color:var(--muted);font-size:12px}.metric strong{display:block;font-size:26px;margin-top:5px}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:18px}.finding{border:1px solid #5b3a3d;background:#281b27;border-radius:12px;padding:13px;margin:10px 0}.severity{color:var(--red);font-size:11px;font-weight:800}.codeout{white-space:pre-wrap;overflow-wrap:anywhere;background:#080e1b;border:1px solid #2b3c59;border-radius:12px;padding:14px;font:13px/1.65 ui-monospace,monospace;min-height:100px;max-height:380px;overflow:auto;color:#d9e7ff}.hidden{display:none}.notice{font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:20px;padding-top:14px}.empty{color:var(--muted);padding:18px;text-align:center;border:1px dashed #33445f;border-radius:12px}
+@media(max-width:800px){.hero,.results{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}h1{font-size:20px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="top"><div class="brand"><div class="logo">P</div><div><h1>PatchPilot</h1><div class="sub">Autonomous Multi-Agent Vulnerability Patching Pipeline</div></div></div><div class="pill">● LOCAL DEMO · v0.1</div></header>
+<section class="hero">
+<div class="panel"><h2>01 / Source code</h2><p>Paste a small Python example. The demo detects two unsafe input patterns and can patch one known pattern.</p>
+<textarea id="source" class="editor" spellcheck="false">user_value = eval(input())
+print(user_value)</textarea>
+<div class="actions"><button class="btn primary" id="run">▶ Run pipeline</button><button class="btn secondary" id="reset">Reset demo</button></div>
+<div id="error" style="color:var(--red);margin-top:10px"></div></div>
+<div class="panel"><h2>02 / Agent orchestration</h2><p>Each stage returns a result to the dashboard.</p><div class="flow" id="agents">
+<div class="agent"><div class="agent-icon">⌕</div><div><b>Scanner Agent</b><small>Search for suspicious patterns</small></div><span class="status">READY</span></div>
+<div class="agent"><div class="agent-icon">{ }</div><div><b>Coder Agent</b><small>Generate a targeted patch</small></div><span class="status">READY</span></div>
+<div class="agent"><div class="agent-icon">⬡</div><div><b>Reviewer Agent</b><small>Check patch conditions</small></div><span class="status">READY</span></div>
+<div class="agent"><div class="agent-icon">✓</div><div><b>Tester Agent</b><small>Validate Python syntax</small></div><span class="status">READY</span></div>
+</div></div></section>
+<section class="metrics">
+<div class="metric"><span>Security findings</span><strong id="mFind">—</strong></div><div class="metric"><span>Patch generated</span><strong id="mPatch">—</strong></div><div class="metric"><span>Review</span><strong id="mReview">—</strong></div><div class="metric"><span>Syntax test</span><strong id="mTest">—</strong></div>
+</section>
+<section class="results">
+<div class="panel"><h2>03 / Findings</h2><div id="findings" class="empty">Run the pipeline to see findings.</div><h2 style="margin-top:20px">Agent notes</h2><ul id="notes" style="color:var(--muted);padding-left:20px"><li>Waiting for a scan.</li></ul></div>
+<div class="panel"><h2>04 / Proposed patch</h2><p>Original source is preserved. Review the output before using it.</p><div class="sub" style="margin-bottom:7px">PATCHED SOURCE</div><pre id="patched" class="codeout">No patch yet.</pre><div class="actions"><button class="btn secondary" id="copy" disabled>Copy patched code</button></div><h2 style="margin-top:20px">Validation details</h2><div id="checks" class="empty">No validation results yet.</div></div>
+</section>
+<div class="notice">Safety note: this MVP does not execute submitted code, clone repositories, or create GitHub pull requests. The scanner covers only two illustrative patterns. Never treat its results as a complete security audit.</div>
+</main>
+<script>
+const demo = "user_value = eval(input())\nprint(user_value)";
+const $ = id => document.getElementById(id);
+let lastPatched = "";
+$("reset").onclick = () => { $("source").value = demo; $("error").textContent = ""; };
+$("run").onclick = async () => {
+  $("error").textContent = "";
+  const code = $("source").value;
+  if (!code.trim()) { $("error").textContent = "Paste some Python code first."; return; }
+  $("run").disabled = true; $("run").textContent = "Running agents…";
+  try {
+    const response = await fetch("/api/pipeline", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code})});
+    if (!response.ok) throw new Error((await response.json()).detail || "Request failed");
+    const data = await response.json();
+    $("mFind").textContent = data.summary.findings;
+    $("mPatch").textContent = data.summary.patch_changed_code ? "YES" : "NO";
+    $("mReview").textContent = data.summary.review_passed ? "PASS" : "FAIL";
+    $("mTest").textContent = data.summary.tests_passed ? "PASS" : "FAIL";
+    $("patched").textContent = data.patched_code;
+    lastPatched = data.patched_code; $("copy").disabled = false;
+    const agents = $("agents").children;
+    data.agents.forEach((a,i) => {
+      const s = agents[i].querySelector(".status");
+      s.textContent = a.status.toUpperCase(); s.className = "status " + (a.status === "passed" || a.status === "completed" ? "pass" : "warn");
+      agents[i].querySelector("small").textContent = a.detail;
+    });
+    $("findings").innerHTML = data.findings.length ? data.findings.map(f =>
+      `<div class="finding"><div class="severity">${escapeHtml(f.severity)} · ${escapeHtml(f.id)} · LINE ${f.line}</div><b>${escapeHtml(f.title)}</b><p>${escapeHtml(f.description)}</p><code>${escapeHtml(f.snippet)}</code></div>`
+    ).join("") : '<div class="empty">No supported patterns detected by this demo scanner.</div>';
+    $("notes").innerHTML = data.patch_actions.map(x=>`<li>${escapeHtml(x)}</li>`).join("");
+    const allChecks = [...data.review.checks, ...data.tests.checks];
+    $("checks").innerHTML = allChecks.map(c=>`<div style="padding:8px 0;border-bottom:1px solid #263650">${c.passed?"🟢":"🔴"} ${escapeHtml(c.name)} <span style="float:right;color:${c.passed?"#5fe0b0":"#ff808b"}">${c.passed?"PASS":"FAIL"}</span></div>`).join("") + `<p>${escapeHtml(data.tests.message)}</p><p>${escapeHtml(data.disclaimer)}</p>`;
+  } catch (e) { $("error").textContent = "Could not run pipeline: " + e.message; }
+  finally { $("run").disabled = false; $("run").textContent = "▶ Run pipeline"; }
+};
+$("copy").onclick = async () => { try { await navigator.clipboard.writeText(lastPatched); $("copy").textContent="Copied!"; setTimeout(()=>$("copy").textContent="Copy patched code",1200); } catch { $("error").textContent="Clipboard access unavailable; select and copy the code manually."; } };
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+</script></body></html>

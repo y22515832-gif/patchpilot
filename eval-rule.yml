@@ -1,0 +1,7 @@
+rules:
+  - id: python-unsafe-eval
+    languages:
+      - python
+    severity: ERROR
+    message: Avoid eval() on untrusted input.
+    pattern: eval(...)
